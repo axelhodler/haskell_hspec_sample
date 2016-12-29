@@ -1,6 +1,6 @@
-# 
+#
 
 ```
 stack repl
-main
+test
 ```
