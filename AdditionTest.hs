@@ -3,11 +3,12 @@ module AdditionTest where
 import Test.Hspec
 import Data.Maybe
 
-data Roll = Spare | Result Integer deriving (Eq, Show)
+data Roll = Spare | Frame Integer Integer deriving (Eq, Show)
+
 roll :: (Integer, Integer) -> Roll
 roll (first, second)
   | (first + second) == 10  = Spare
-  | otherwise               = Result $ first + second
+  | otherwise               = Frame first second
 
 maxPins = 10
 
@@ -20,8 +21,8 @@ calculateScore :: [Roll] -> Maybe PreviousRoll -> Integer
 calculateScore [] _ = 0
 calculateScore (Spare:xs) (Just Spare) = 2 * maxPins + calculateScore xs (Just Spare)
 calculateScore (Spare:xs) _ = maxPins + calculateScore xs (Just Spare)
-calculateScore (Result x:xs) (Just Spare) = 2 * x + calculateScore xs (Just (Result x))
-calculateScore (Result x:xs) _ = x + calculateScore xs (Just (Result x))
+calculateScore (Frame x y:xs) (Just Spare) = 2 * x + y + calculateScore xs (Just (Frame x y))
+calculateScore (Frame x y:xs) _ = x + y + calculateScore xs (Just (Frame x y))
 
 test :: IO ()
 test = hspec $
