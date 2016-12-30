@@ -1,28 +1,34 @@
 module AdditionTest where
 
 import Test.Hspec
-import Data.Maybe
 
-data Roll = Spare | Frame Integer Integer deriving (Eq, Show)
+data Roll = Strike | Spare | Frame Integer Integer deriving (Eq, Show)
+data OpenBonus = NoBonus | One | Two | Three
 
 roll :: (Integer, Integer) -> Roll
 roll (first, second)
+  | first == 10             = Strike
   | (first + second) == 10  = Spare
   | otherwise               = Frame first second
 
+maxPins :: Integer
 maxPins = 10
 
 score :: [Roll] -> Integer
-score rolls = calculateScore rolls Nothing
+score rolls = calculateScore rolls NoBonus
 
-type PreviousRoll = Roll
-
-calculateScore :: [Roll] -> Maybe PreviousRoll -> Integer
+calculateScore :: [Roll] -> OpenBonus -> Integer
 calculateScore [] _ = 0
-calculateScore (Spare:xs) (Just Spare) = 2 * maxPins + calculateScore xs (Just Spare)
-calculateScore (Spare:xs) _ = maxPins + calculateScore xs (Just Spare)
-calculateScore (Frame x y:xs) (Just Spare) = 2 * x + y + calculateScore xs (Just (Frame x y))
-calculateScore (Frame x y:xs) _ = x + y + calculateScore xs (Just (Frame x y))
+calculateScore (Strike:xs) Two = 2 * maxPins + calculateScore xs Three
+calculateScore (Strike:xs) One = 2 * maxPins + calculateScore xs Two
+calculateScore (Strike:xs) NoBonus = maxPins + calculateScore xs Two
+calculateScore (Spare:xs) Two = 2 * maxPins + calculateScore xs One
+calculateScore (Spare:xs) One = 2 * maxPins + calculateScore xs One
+calculateScore (Spare:xs) NoBonus = maxPins + calculateScore xs One
+calculateScore (Frame x y:xs) Three = 3 * x + 2 * y + calculateScore xs NoBonus
+calculateScore (Frame x y:xs) Two = 2 * x + 2 * y + calculateScore xs NoBonus
+calculateScore (Frame x y:xs) One = 2 * x + y + calculateScore xs NoBonus
+calculateScore (Frame x y:xs) NoBonus = x + y + calculateScore xs NoBonus
 
 test :: IO ()
 test = hspec $
@@ -39,3 +45,5 @@ test = hspec $
       score [roll (5, 5), roll(1, 0)] `shouldBe` 12
     it "scores 32 on rolling two spares and a one" $
       score [roll (5, 5), roll(5, 5), roll(1, 0)] `shouldBe` 32
+    it "scores 37 on rolling two strikes and a 1 2 frame" $
+      score [roll (10, 0), roll(10, 0), roll(1, 2)] `shouldBe` 37
