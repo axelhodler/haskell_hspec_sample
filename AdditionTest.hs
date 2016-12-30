@@ -19,6 +19,8 @@ score rolls = calculateScore rolls NoBonus
 
 calculateScore :: [Roll] -> OpenBonus -> Integer
 calculateScore [] _ = 0
+calculateScore [Strike, Strike] _ = 30
+calculateScore (Strike:xs) Three = 3 * maxPins + calculateScore xs Three
 calculateScore (Strike:xs) Two = 2 * maxPins + calculateScore xs Three
 calculateScore (Strike:xs) One = 2 * maxPins + calculateScore xs Two
 calculateScore (Strike:xs) NoBonus = maxPins + calculateScore xs Two
@@ -47,3 +49,5 @@ test = hspec $
       score [Spare, Spare, roll(1, 0)] `shouldBe` 32
     it "scores 37 on rolling two strikes and a 1 2 frame" $
       score [Strike, Strike, roll(1, 2)] `shouldBe` 37
+    it "can score a perfect game" $
+      score [Strike, Strike, Strike, Strike, Strike, Strike, Strike, Strike, Strike, Strike, Strike, Strike] `shouldBe` 300
