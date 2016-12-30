@@ -1,8 +1,9 @@
 module AdditionTest where
 
 import Test.Hspec
+import Data.Maybe
 
-data Roll = Spare | Gutter | Result Integer deriving (Eq, Show)
+data Roll = Spare | Result Integer deriving (Eq, Show)
 roll :: (Integer, Integer) -> Roll
 roll (first, second)
   | (first + second) == 10  = Spare
@@ -11,16 +12,16 @@ roll (first, second)
 maxPins = 10
 
 score :: [Roll] -> Integer
-score rolls = calculateScore rolls Gutter
+score rolls = calculateScore rolls Nothing
 
 type PreviousRoll = Roll
 
-calculateScore :: [Roll] -> PreviousRoll -> Integer
+calculateScore :: [Roll] -> Maybe PreviousRoll -> Integer
 calculateScore [] _ = 0
-calculateScore (Spare:xs) Spare = 2 * maxPins + calculateScore xs Spare
-calculateScore (Spare:xs) _ = maxPins + calculateScore xs Spare
-calculateScore (Result x:xs) Spare = 2 * x + calculateScore xs (Result x)
-calculateScore (Result x:xs) _ = x + calculateScore xs (Result x)
+calculateScore (Spare:xs) (Just Spare) = 2 * maxPins + calculateScore xs (Just Spare)
+calculateScore (Spare:xs) _ = maxPins + calculateScore xs (Just Spare)
+calculateScore (Result x:xs) (Just Spare) = 2 * x + calculateScore xs (Just (Result x))
+calculateScore (Result x:xs) _ = x + calculateScore xs (Just (Result x))
 
 test :: IO ()
 test = hspec $
