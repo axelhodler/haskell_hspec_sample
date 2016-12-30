@@ -42,8 +42,8 @@ test = hspec $
     it "scores 10 on rolling a 1 ten times" $
       score [roll (1, 0), roll(1, 0)] `shouldBe` 2
     it "scores 12 on rolling a spare and a one" $
-      score [roll (5, 5), roll(1, 0)] `shouldBe` 12
+      score [Spare, roll(1, 0)] `shouldBe` 12
     it "scores 32 on rolling two spares and a one" $
-      score [roll (5, 5), roll(5, 5), roll(1, 0)] `shouldBe` 32
+      score [Spare, Spare, roll(1, 0)] `shouldBe` 32
     it "scores 37 on rolling two strikes and a 1 2 frame" $
-      score [roll (10, 0), roll(10, 0), roll(1, 2)] `shouldBe` 37
+      score [Strike, Strike, roll(1, 2)] `shouldBe` 37
