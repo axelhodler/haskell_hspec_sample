@@ -1,6 +1,5 @@
-#
+# Run tests
 
 ```
-stack repl
-test
+stack repl <<< test
 ```
